@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XAUUSD live – Prediksi candle berikutnya dengan koreksi backtest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F4F7; --panel:#FFFFFF; --ink:#1A1F2B; --muted:#5E6676; --line:#DADDE4;
+  --gold:#8F6B1C; --bull:#1F7A5A; --bear:#B23A33; --side:#7C8494; --warn-bg:#FFF4D6; --warn-ink:#6B4E00;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#151A24; --panel:#1D2431; --ink:#E9ECF2; --muted:#9AA3B5; --line:#2E3747;
+    --gold:#D8B25C; --bull:#3DBB8A; --bear:#E5675F; --side:#8E97A8; --warn-bg:#3A3015; --warn-ink:#F2D58A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151A24; --panel:#1D2431; --ink:#E9ECF2; --muted:#9AA3B5; --line:#2E3747;
+  --gold:#D8B25C; --bull:#3DBB8A; --bear:#E5675F; --side:#8E97A8; --warn-bg:#3A3015; --warn-ink:#F2D58A;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 40px}
+header{border-bottom:2px solid var(--gold);padding-bottom:14px}
+h1{font-size:1.05rem;font-weight:600;margin:0;color:var(--muted)}
+.price{font-size:clamp(2.2rem,9vw,3.4rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--gold)}
+.meta{font-size:.82rem;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+label{font-size:.85rem}
+select,input[type=number],button,textarea{font:inherit;font-size:.88rem;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+textarea{width:100%;min-height:130px;margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;white-space:pre;overflow:auto}
+button{cursor:pointer;font-weight:600}
+button.primary{background:var(--gold);border-color:var(--gold);color:var(--panel)}
+button:disabled{opacity:.5;cursor:default}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button[aria-pressed=true]{border-color:var(--gold);box-shadow:inset 0 -3px 0 var(--gold)}
+.tabs button.has::after{content:" ●";color:var(--gold);font-size:.7em}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.status{margin-top:12px;font-size:.88rem;font-weight:600;min-height:1.4em}
+.warn{background:var(--warn-bg);color:var(--warn-ink);border-radius:6px;padding:10px 12px;margin-top:12px;font-size:.88rem}
+.warn:empty{display:none}
+h2{font-size:1rem;margin:24px 0 8px}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:.88rem}
+th{font-weight:600;color:var(--muted);font-size:.8rem}
+tr:last-child td{border-bottom:0}
+.tf{font-weight:800}
+.b-Bullish{color:var(--bull);font-weight:800}.b-Bearish{color:var(--bear);font-weight:800}.b-Sideways{color:var(--side);font-weight:800}
+.bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:5px 0;min-width:120px;max-width:260px}
+.bar i{display:block}.bar .u{background:var(--bull)}.bar .s{background:var(--side)}.bar .d{background:var(--bear)}
+.small{font-size:.78rem;color:var(--muted)}
+.flag{color:var(--bear);font-size:.78rem;font-weight:600}
+.ok{color:var(--bull);font-weight:600}.no{color:var(--muted);font-weight:600}
+section p{margin:4px 0;max-width:75ch}
+details{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600}
+details p{max-width:75ch}
+code{font-size:.82rem;word-break:break-word}
+.foot{margin-top:24px;font-weight:600}
+[hidden]{display:none!important}
+input[type=password]{font:inherit;font-size:.88rem;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);min-width:12rem}
+@media (max-width:720px){
+  table,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+  tr{padding:8px 12px;border-bottom:1px solid var(--line)}
+  tr:last-child{border-bottom:0}
+  td{border:0;padding:5px 0;display:grid;grid-template-columns:6.5rem 1fr;gap:8px}
+  td::before{content:attr(data-l);color:var(--muted);font-size:.78rem;font-weight:600}
+  td.empty{display:block}td.empty::before{content:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>XAUUSD live, prediksi candle berikutnya dengan koreksi backtest</h1>
+    <div class="price" id="price">—</div>
+    <div class="meta" id="meta">Belum ada data. Pilih sumber data di bawah.</div>
+  </header>
+
+  <div class="panel">
+    <div class="row" style="margin-top:0">
+      <label for="src">Sumber data</label>
+      <select id="src">
+        <option value="td">Twelve Data, XAU/USD live</option>
+        <option value="bn">Binance PAXG/USDT live (proxy emas, tanpa key)</option>
+        <option value="manual">Manual: tempel atau unggah CSV</option>
+      </select>
+    </div>
+    <div id="liveBox">
+      <div class="row" id="keyRow">
+        <label for="key">API key Twelve Data</label>
+        <input id="key" type="password" autocomplete="off" placeholder="Tempel API key">
+      </div>
+      <div class="row">
+        <label for="every">Perbarui tiap</label>
+        <select id="every"><option value="60">1 menit</option><option value="300" selected>5 menit</option><option value="900">15 menit</option></select>
+        <label><input type="checkbox" id="auto" checked> Otomatis</label>
+      </div>
+      <p class="small" id="quota" style="margin:10px 0 0;max-width:75ch">Paket gratis Twelve Data dibatasi 8 permintaan per menit dan 800 per hari. Dengan interval 5 menit pemakaiannya sekitar 410 per hari; interval 1 menit akan melewati batas harian.</p>
+    </div>
+    <div id="manualBox" style="margin-top:12px">
+    <div class="tabs" id="tabs" role="group" aria-label="Pilih timeframe untuk diisi"></div>
+    <label for="txt" class="small" id="txtLabel" style="display:block;margin-top:10px"></label>
+    <textarea id="txt" spellcheck="false" placeholder="Satu candle per baris: waktu, open, high, low, close&#10;2026-06-12 14:05, 4012.30, 4014.10, 4011.80, 4013.50&#10;Ekspor MT4/MT5 dan TradingView (CSV) bisa langsung ditempel."></textarea>
+    <div class="row">
+      <button id="fileBtn" type="button">Pilih file CSV</button>
+      <input id="file" type="file" accept=".csv,.txt,text/csv,text/plain" hidden>
+      <button id="clearBtn" type="button">Kosongkan TF ini</button>
+      <button id="sampleBtn" type="button">Muat data simulasi</button>
+    </div>
+    <div class="row">
+      <label for="tz">Zona waktu data</label>
+      <select id="tz">
+        <option value="7">WIB (UTC+7)</option>
+        <option value="0">UTC</option>
+        <option value="2">Server broker UTC+2</option>
+        <option value="3">Server broker UTC+3</option>
+      </select>
+      <label for="cur">Harga sekarang (opsional)</label>
+      <input id="cur" type="number" step="0.01" inputmode="decimal" style="width:8.5rem">
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="agg" checked> Bangun TF yang kosong dari TF lebih kecil</label>
+    </div>
+    <p class="small" style="margin:12px 0 0;max-width:75ch">Dari TradingView: buka chart XAUUSD, pilih timeframe, gulir ke kiri sampai riwayat yang dibutuhkan termuat, lalu pilih “Export chart data…” di menu chart. Unggah file CSV-nya ke tab TF yang sama di sini.</p>
+    </div>
+    <div class="row">
+      <button class="primary" id="run" type="button">Analisis dan backtest</button>
+    </div>
+    <div class="status" id="status" aria-live="polite"></div>
+  </div>
+
+  <div class="warn" id="warn"></div>
+
+  <h2>Prediksi per timeframe</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>TF</th><th>Bias</th><th>Probabilitas (naik / sideways / turun)</th><th>Target candle berikut</th><th>Level kunci</th><th>Invalidasi</th></tr></thead>
+      <tbody id="rows"><tr><td class="empty" colspan="6">Belum ada hasil. Pilih sumber data, lalu tekan “Analisis dan backtest”.</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2>Hasil backtest walk-forward</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>TF</th><th>Jumlah uji</th><th>Akurasi (awal → terkoreksi)</th><th>Brier (awal → terkoreksi)</th><th>Brier base rate</th><th>Keputusan</th></tr></thead>
+      <tbody id="bt"><tr><td class="empty" colspan="6">Backtest berjalan otomatis setelah prediksi awal tampil.</td></tr></tbody>
+    </table>
+  </div>
+
+  <section><h2>Konfluensi</h2><p id="conf">—</p></section>
+  <section><h2>Skenario utama vs alternatif</h2><p id="main">—</p><p id="alt">—</p></section>
+  <section><h2>Risiko dan berita</h2><p id="risk">—</p></section>
+
+  <details>
+    <summary>Cara angka dihitung dan dikoreksi</summary>
+    <p><b>Skor arah.</b> <code>S = 0.25·tanh((EMA20−EMA50)/ATR) + 0.20·tanh((C−EMA20)/ATR) + 0.20·R + 0.20·tanh(Hist/(0.25·ATR)) + 0.15·Struktur</code>. R = (RSI14−50)/50 dengan koreksi mean-reversion di atas 75 dan di bawah 25. Struktur = +1 (HH/HL), −1 (LH/LL), 0 (campuran) dari pivot fractal 2 bar.</p>
+    <p><b>Top-down.</b> D1 memakai skornya sendiri; H1 = 0.7·S + 0.3·S<sub>D1</sub>; M30, M15, M5 = 0.55·S + 0.45·rata-rata(S<sub>D1</sub>, S<sub>H1</sub>). Hanya candle TF besar yang sudah tutup yang dipakai, supaya backtest tidak mengintip masa depan.</p>
+    <p><b>Probabilitas awal.</b> <code>P↑ = 0.6·σ(2.2·S) + 0.4·(2+k)/(4+m)</code>, dengan m candle sebelumnya yang skornya mirip (|ΔS| &lt; 0.2) dan k di antaranya diikuti candle naik (prior Beta(2,2)). <code>P↔ = clamp(0.12 + 0.55·(1−ER)·(1−|tanh 2S|), 0.10, 0.60)</code>, ER = efficiency ratio 14 bar. Bullish = (1−P↔)·P↑, Bearish = (1−P↔)·(1−P↑).</p>
+    <p><b>Backtest.</b> Untuk setiap candle historis i (mulai candle ke-60), model memprediksi candle i+1 hanya dari data sampai i. Hasil nyata diberi label naik jika ΔC &gt; 0.15·ATR, turun jika ΔC &lt; −0.15·ATR, selain itu sideways.</p>
+    <p><b>Koreksi.</b> Probabilitas dikalibrasi ulang dengan regresi logistik multinomial: <code>P′<sub>k</sub> ∝ exp(a·ln P<sub>k</sub> + b<sub>k</sub>)</code>. Parameter a, b dicari dengan gradient descent pada 70% data backtest pertama, lalu diuji pada 30% terakhir. Koreksi hanya dipakai jika skor Brier di data uji membaik; jika dipakai, parameter dihitung ulang dari seluruh backtest. a mendekati 0 berarti sinyal model lemah dan prediksi ditarik ke base rate.</p>
+    <p><b>Target.</b> Sebelum backtest: High = C + ATR·(0.5 + 0.35·k), Low = C − ATR·(0.5 − 0.35·k), k = Bullish − Bearish. Setelah backtest, koefisiennya diganti hasil regresi linear jarak High dan Low candle berikutnya (dalam satuan ATR) terhadap k.</p>
+    <p><b>Data live.</b> Twelve Data: M5 (5.000 candle), H1, dan D1 diambil langsung; M15 dan M30 dibangun dari M5. Binance: kelima TF diambil langsung (1.000 candle). Candle yang masih berjalan dibuang dan harga terakhirnya dipakai sebagai harga acuan. Backtest dan koreksi diulang penuh pada setiap pembaruan, jadi candle yang baru tutup langsung ikut dihitung.</p>
+    <p><b>Asumsi.</b> Pada mode manual, baris terakhir tiap TF dianggap candle yang sudah tutup. Maksimal 1.500 candle terakhir per TF yang dipakai.</p>
+  </details>
+
+  <p class="foot">Bukan saran finansial.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+const TFS=[{id:'D1',min:1440},{id:'H1',min:60},{id:'M30',min:30},{id:'M15',min:15},{id:'M5',min:5}];
+const MIN_BARS=60,WARM=60,MIN_BT=100,MAX_BARS=1500,THETA=0.15,ID={a:1,b:[0,0]};
+const $=id=>document.getElementById(id);
+const f2=x=>Number(x).toFixed(2),pc=x=>(x*100).toFixed(1)+'%';
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const avg=a=>a.reduce((s,x)=>s+x,0)/a.length;
+const tick=()=>new Promise(r=>setTimeout(r,40));
+const fmtWIB=t=>new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(t))+' WIB';
+/* Untuk pemasangan di situs sendiri: isi di sini agar pengunjung tidak perlu memilih. */
+const CONFIG={source:'',apiKey:'',refreshSec:0}; // source: 'td' | 'bn' | 'manual'
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const BN={D1:'1d',H1:'1h',M30:'30m',M15:'15m',M5:'5m'},cache={};
+async function fetchTD(interval,size,key){
+  const r=await fetch(`https://api.twelvedata.com/time_series?symbol=XAU/USD&interval=${interval}&outputsize=${size}&timezone=UTC&apikey=${encodeURIComponent(key)}`);
+  const j=await r.json();
+  if(j.status!=='ok'||!Array.isArray(j.values))throw new Error('Twelve Data ('+interval+'): '+(j.message||'respons tidak dikenal'));
+  return j.values.map(v=>{const d=v.datetime.length>10?v.datetime.replace(' ','T')+'Z':v.datetime+'T00:00:00Z';return{t:Date.parse(d),o:+v.open,h:+v.high,l:+v.low,c:+v.close}}).sort((a,b)=>a.t-b.t);
+}
+async function fetchBN(interval){
+  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${interval}&limit=1000`);
+  if(!r.ok)throw new Error('Binance ('+interval+'): HTTP '+r.status);
+  return(await r.json()).map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4]}));
+}
+// Cache berlaku selama masih di candle yang sama dan belum lewat batas umur
+async function cached(k,ms,dur,fn){const c=cache[k],now=Date.now();
+  if(c&&now-c.at<ms&&Math.floor(now/dur)===Math.floor(c.at/dur))return c.v.slice();
+  const v=await fn();cache[k]={at:Date.now(),v};return v.slice()}
+async function loadLive(mode){
+  const user={D1:[],H1:[],M30:[],M15:[],M5:[]};
+  if(mode==='td'){const key=$('key').value.trim();
+    if(!key)throw new Error('isi API key Twelve Data dulu (daftar gratis di twelvedata.com), atau pilih sumber lain');
+    user.M5=await fetchTD('5min',5000,key);
+    user.H1=await cached('h1'+key,900000,3600000,()=>fetchTD('1h',1500,key));
+    user.D1=await cached('d1'+key,3600000,86400000,()=>fetchTD('1day',1500,key));
+  }else{const r=await Promise.all(TFS.map(tf=>fetchBN(BN[tf.id])));TFS.forEach((tf,i)=>user[tf.id]=r[i])}
+  const now=Date.now(),m5=user.M5,cur=m5.length?m5[m5.length-1].c:0;
+  for(const tf of TFS){const b=user[tf.id];if(b.length&&b[b.length-1].t+tf.min*60000>now)b.pop()} // buang candle yang masih berjalan
+  return{user,cur,at:now};
+}
+const src={};TFS.forEach(t=>src[t.id]={text:'',fileText:'',bars:null,label:''});
+let active='M5',simulated=false;
+
+/* ---------- Input ---------- */
+function parse(text,offH){
+  const out=[],reD=/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})(?:[T ,;\t]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/;
+  for(const ln of text.split(/\r?\n/)){
+    if(!ln.trim())continue;
+    let t,rest;const m=ln.match(reD);
+    if(m){
+      rest=ln.slice(m.index+m[0].length);let off=offH*60;
+      const z=rest.match(/^(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})/);
+      if(z){rest=rest.slice(z[0].length);
+        if(z[1]==='Z')off=0;else{const d=z[1].replace(/[+\-:]/g,'');off=(z[1][0]==='-'?-1:1)*(+d.slice(0,2)*60+ +d.slice(2))}}
+      t=Date.UTC(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0))-off*60000;
+    }else{
+      const u=ln.match(/^\s*(\d{13}|\d{10})(?=[,;\t ])/);if(!u)continue;
+      t=u[1].length===13?+u[1]:+u[1]*1000;rest=ln.slice(u[0].length);
+    }
+    const nums=rest.match(/\d+(?:\.\d+)?/g);if(!nums||nums.length<4)continue;
+    const o=+nums[0],h=+nums[1],l=+nums[2],c=+nums[3];
+    if(!(h>=l)||!(o>0)||!(c>0)||h<Math.max(o,c)-1e-9||l>Math.min(o,c)+1e-9)continue;
+    out.push({t,o,h,l,c});
+  }
+  out.sort((a,b)=>a.t-b.t);
+  return out.filter((x,i)=>!i||x.t!==out[i-1].t);
+}
+function aggregate(b,min,srcMin,offH){
+  const dur=min*60000,off=offH*3600000,out=[];let cur=null,key=null;
+  for(const x of b){const k=Math.floor((x.t+off)/dur)*dur-off;
+    if(k!==key){cur={t:k,o:x.o,h:x.h,l:x.l,c:x.c};out.push(cur);key=k}
+    else{if(x.h>cur.h)cur.h=x.h;if(x.l<cur.l)cur.l=x.l;cur.c=x.c}}
+  if(out.length&&b[b.length-1].t+srcMin*60000<out[out.length-1].t+dur)out.pop(); // buang candle yang belum tutup
+  return out;
+}
+function sample(){
+  let s=20240611;const rnd=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  const g=()=>{let u=0;for(let i=0;i<6;i++)u+=rnd();return(u-3)/Math.SQRT1_2};
+  const N=60000,end=Math.floor(Date.now()/300000)*300000,out=[];let p=4000,dr=0;
+  for(let i=0;i<N;i++){dr=0.98*dr+0.000007*g();const vol=0.0003*(1+0.5*Math.sin(i/288*2*Math.PI));
+    const o=p,c=o*(1+dr+vol*g()),hi=Math.max(o,c)*(1+Math.abs(g())*vol*0.5),lo=Math.min(o,c)*(1-Math.abs(g())*vol*0.5);
+    out.push({t:end-(N-i)*300000,o:+o.toFixed(2),h:+hi.toFixed(2),l:+lo.toFixed(2),c:+c.toFixed(2)});p=+c.toFixed(2)}
+  return out;
+}
+
+/* ---------- Indikator ---------- */
+function ema(a,p){const k=2/(p+1),o=[];let e=a[0];for(let i=0;i<a.length;i++){e=i?a[i]*k+e*(1-k):a[0];o.push(e)}return o}
+function rsi(c,p=14){const o=Array(c.length).fill(50);let g=0,l=0;
+  for(let i=1;i<c.length;i++){const d=c[i]-c[i-1],up=Math.max(d,0),dn=Math.max(-d,0);
+    if(i<=p){g+=up/p;l+=dn/p}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p}
+    if(i>=p)o[i]=l===0?100:100-100/(1+g/l)}return o}
+function atr(b,p=14){const o=[];let a=0;
+  for(let i=0;i<b.length;i++){const tr=i?Math.max(b[i].h-b[i].l,Math.abs(b[i].h-b[i-1].c),Math.abs(b[i].l-b[i-1].c)):b[i].h-b[i].l;
+    a=i<p?(a*i+tr)/(i+1):(a*(p-1)+tr)/p;o.push(a)}return o}
+function pivots(b,w=2){const H=[],L=[];
+  for(let j=w;j<b.length-w;j++){let ph=true,pl=true;
+    for(let k=1;k<=w;k++){if(b[j].h<=b[j-k].h||b[j].h<b[j+k].h)ph=false;if(b[j].l>=b[j-k].l||b[j].l>b[j+k].l)pl=false}
+    if(ph)H.push({i:j,conf:j+w,v:b[j].h});if(pl)L.push({i:j,conf:j+w,v:b[j].l})}return{H,L}}
+function structureSeries(n,pv){const st=Array(n).fill(0);let hp=0,lp=0;
+  for(let i=0;i<n;i++){while(hp<pv.H.length&&pv.H[hp].conf<=i)hp++;while(lp<pv.L.length&&pv.L[lp].conf<=i)lp++;
+    if(hp<2||lp<2)continue;const hh=pv.H[hp-1].v>pv.H[hp-2].v,hl=pv.L[lp-1].v>pv.L[lp-2].v;st[i]=hh&&hl?1:(!hh&&!hl?-1:0)}
+  return st}
+function candlePattern(p,c){const body=Math.abs(c.c-c.o),rng=c.h-c.l||1e-9,up=c.h-Math.max(c.o,c.c),lo=Math.min(c.o,c.c)-c.l;
+  if(c.c>c.o&&p.c<p.o&&c.o<=p.c&&c.c>=p.o)return'Bullish engulfing';
+  if(c.c<c.o&&p.c>p.o&&c.o>=p.c&&c.c<=p.o)return'Bearish engulfing';
+  if(body<=0.1*rng)return'Doji';
+  if(lo>=2*body&&up<=body)return'Hammer / pin bar bawah';
+  if(up>=2*body&&lo<=body)return'Shooting star / pin bar atas';
+  if(c.h<p.h&&c.l>p.l)return'Inside bar';
+  return c.c>c.o?'Candle naik':'Candle turun'}
+
+/* ---------- Fitur dan model ---------- */
+function features(b){
+  const n=b.length,c=b.map(x=>x.c),e20=ema(c,20),e50=ema(c,50),r=rsi(c),a=atr(b);
+  const e26=ema(c,26),m=ema(c,12).map((v,i)=>v-e26[i]),sg=ema(m,9),h=m.map((v,i)=>v-sg[i]);
+  const pv=pivots(b),st=structureSeries(n,pv),S=new Array(n),er=new Array(n).fill(0),cum=[0];
+  for(let i=1;i<n;i++)cum[i]=cum[i-1]+Math.abs(c[i]-c[i-1]);
+  for(let i=0;i<n;i++){const A=a[i]||1e-9;let rs=(r[i]-50)/50;if(r[i]>75)rs-=(r[i]-75)/25;if(r[i]<25)rs+=(25-r[i])/25;
+    S[i]=0.25*Math.tanh((e20[i]-e50[i])/A)+0.2*Math.tanh((c[i]-e20[i])/A)+0.2*rs+0.2*Math.tanh(h[i]/(0.25*A))+0.15*st[i];
+    if(i>=14){const path=cum[i]-cum[i-14];er[i]=path?Math.abs(c[i]-c[i-14])/path:0}}
+  // Frekuensi empiris kausal: hanya memakai candle sebelum i
+  const pE=new Array(n).fill(0.5),cnt=new Array(n).fill(0);
+  for(let i=51;i<n;i++){let k=0,mm=0;const s=S[i];
+    for(let j=50;j<i;j++)if(Math.abs(S[j]-s)<0.2){mm++;if(c[j+1]>c[j])k++}
+    pE[i]=(2+k)/(4+mm);cnt[i]=mm}
+  return{n,b,c,a,r,h,st,pv,S,er,pE,cnt,t:b.map(x=>x.t),hi:b.map(x=>x.h),lo:b.map(x=>x.l)};
+}
+function alignScore(F,dur,H,durH){const out=new Array(F.n).fill(null);let p=-1;
+  for(let i=0;i<F.n;i++){const tc=F.t[i]+dur;while(p+1<H.n&&H.t[p+1]+durH<=tc)p++;if(p>=50)out[i]=H.S[p]}
+  return out}
+function finalScores(tf,F,X){
+  if(tf.id==='D1')return F.S.slice();
+  const dur=tf.min*60000,sd=X.D1?alignScore(F,dur,X.D1,86400000):null,sh=tf.id!=='H1'&&X.H1?alignScore(F,dur,X.H1,3600000):null;
+  return F.S.map((s,i)=>{const d=sd?sd[i]:null,h=sh?sh[i]:null;
+    if(tf.id==='H1')return d==null?s:0.7*s+0.3*d;
+    const v=[d,h].filter(x=>x!=null);return v.length?0.55*s+0.45*avg(v):s});
+}
+function rawProb(S,pE,er){
+  const pUp=0.6/(1+Math.exp(-2.2*S))+0.4*pE,pSide=clamp(0.12+0.55*(1-er)*(1-Math.abs(Math.tanh(2*S))),0.10,0.60);
+  return[(1-pSide)*pUp,pSide,(1-pSide)*(1-pUp)];
+}
+
+/* ---------- Backtest dan koreksi ---------- */
+function calib(p,P){const z=[0,0,0];let mx=-Infinity;
+  for(let k=0;k<3;k++){z[k]=P.a*Math.log(Math.max(p[k],1e-6))+(k<2?P.b[k]:0);if(z[k]>mx)mx=z[k]}
+  let s=0;for(let k=0;k<3;k++){z[k]=Math.exp(z[k]-mx);s+=z[k]}return[z[0]/s,z[1]/s,z[2]/s]}
+function fit(ps,ys){let a=1,b=[0,0];const n=ps.length,lp=ps.map(p=>p.map(v=>Math.log(Math.max(v,1e-6))));
+  for(let it=0;it<400;it++){let ga=0,g0=0,g1=0;const P={a,b};
+    for(let i=0;i<n;i++){const q=calib(ps[i],P);
+      for(let k=0;k<3;k++){const d=q[k]-(ys[i]===k?1:0);ga+=d*lp[i][k];if(k===0)g0+=d;else if(k===1)g1+=d}}
+    a=clamp(a-0.5*(ga/n+0.02*(a-1)),0,3);b=[b[0]-0.5*(g0/n+0.02*b[0]),b[1]-0.5*(g1/n+0.02*b[1])]}
+  return{a,b}}
+function metrics(ps,ys){let br=0,hit=0;
+  for(let i=0;i<ps.length;i++){const p=ps[i],y=ys[i];for(let k=0;k<3;k++)br+=(p[k]-(y===k?1:0))**2;
+    const am=p[0]>=p[1]&&p[0]>=p[2]?0:p[2]>=p[1]?2:1;if(am===y)hit++}
+  return{brier:br/ps.length,hit:hit/ps.length}}
+function ols(x,y){const mx=avg(x),my=avg(y);let sxy=0,sxx=0;
+  for(let i=0;i<x.length;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2}
+  const b=sxx>1e-12?sxy/sxx:0;return{a:my-b*mx,b}}
+function backtest(F,Sf){
+  const ps=[],ys=[],us=[],ds=[];
+  for(let i=WARM;i<F.n-1;i++){const A=F.a[i]||1e-9,dc=F.c[i+1]-F.c[i];
+    ps.push(rawProb(Sf[i],F.pE[i],F.er[i]));ys.push(dc>THETA*A?0:dc<-THETA*A?2:1);
+    us.push((F.hi[i+1]-F.c[i])/A);ds.push((F.c[i]-F.lo[i+1])/A)}
+  const N=ps.length;if(N<MIN_BT)return{skipped:true,N};
+  const nT=Math.floor(N*0.7),P1=fit(ps.slice(0,nT),ys.slice(0,nT)),vp=ps.slice(nT),vy=ys.slice(nT);
+  const fr=[0,0,0];for(let i=0;i<nT;i++)fr[ys[i]]++;const base=fr.map(v=>v/nT);
+  const mRaw=metrics(vp,vy),mCor=metrics(vp.map(p=>calib(p,P1)),vy),mBase=metrics(vp.map(()=>base),vy);
+  const apply=mCor.brier<mRaw.brier,P=apply?fit(ps,ys):ID;
+  const sk=ps.map(p=>{const q=calib(p,P);return q[0]-q[2]});
+  return{skipped:false,N,nV:N-nT,mRaw,mCor,mBase,apply,P,ru:ols(sk,us),rd:ols(sk,ds),edge:(apply?mCor.brier:mRaw.brier)<mBase.brier};
+}
+
+/* ---------- Hasil per TF ---------- */
+function finalize(R,cur){
+  for(const tf of TFS){const x=R[tf.id];if(!x.ok)continue;
+    const done=x.bt&&!x.bt.skipped,p=done&&x.bt.apply?calib(x.pRaw,x.bt.P):x.pRaw;
+    const ints=q=>{const a=Math.round(q[0]*100),s=Math.round(q[1]*100);return[a,s,100-a-s]};
+    [x.pb,x.ps,x.pd]=ints(p);x.rawInts=ints(x.pRaw);
+    x.bias=p[0]>p[1]&&p[0]>p[2]?'Bullish':p[2]>p[1]&&p[2]>p[0]?'Bearish':'Sideways';
+    const sk=p[0]-p[2],up=done?Math.max(0.05,x.bt.ru.a+x.bt.ru.b*sk):0.5+0.35*sk,dn=done?Math.max(0.05,x.bt.rd.a+x.bt.rd.b*sk):0.5-0.35*sk;
+    x.tH=x.price+x.A*up;x.tL=x.price-x.A*dn;
+    x.inv=x.bias==='Bullish'?`Close &lt; ${f2(x.sup-0.2*x.A)}`:x.bias==='Bearish'?`Close &gt; ${f2(x.res+0.2*x.A)}`:`Breakout &lt; ${f2(x.sup)} atau &gt; ${f2(x.res)}`;
+  }
+  const big=['D1','H1'].map(i=>R[i]).filter(x=>x.ok&&x.bias!=='Sideways');const top=big.length?big[0].bias:'Sideways';
+  for(const tf of TFS){const x=R[tf.id];if(x.ok)x.conflict=tf.id!=='D1'&&top!=='Sideways'&&x.bias!=='Sideways'&&x.bias!==top}
+  return top;
+}
+function render(R,cur,finished){
+  const top=finalize(R,cur),okTF=TFS.filter(t=>R[t.id].ok),low=okTF[okTF.length-1];
+  if(!low){$('rows').innerHTML='<tr><td class="empty" colspan="6">Tidak ada timeframe dengan data cukup (minimal 60 candle).</td></tr>';return}
+  const lx=R[low.id],closeT=lx.lastT+low.min*60000,age=(Date.now()-closeT)/60000;
+  $('price').textContent=f2(lx.price);
+  const lv=R._live,sim=simulated&&!lv;
+  $('meta').textContent=`${sim?'Data simulasi (bukan harga pasar). ':''}${lv?`Sumber: ${lv.mode==='td'?'Twelve Data XAU/USD':'Binance PAXG/USDT (proxy emas)'}, diambil ${fmtWIB(lv.at)}. `:''}Candle ${low.id} terakhir tutup ${fmtWIB(closeT)}. Harga acuan: ${lv?'harga terakhir dari feed':cur?'harga sekarang yang Anda isi':'close terakhir '+low.id}.`;
+  const w=R._warn.slice();
+  if(sim)w.unshift('Ini data simulasi acak untuk mencoba alat, bukan harga XAUUSD. Tempel data Anda sendiri untuk analisis nyata.');
+  else if(age>15)w.unshift(`Data ${low.id} berumur ±${age>2880?Math.round(age/1440)+' hari':age>120?Math.round(age/60)+' jam':Math.round(age)+' menit'} (lebih dari 15 menit). ${lv?'Pasar mungkin tutup atau feed tertunda; jangan pakai sebagai sinyal real-time.':'Prediksi berlaku untuk candle setelah data terakhir, bukan kondisi pasar saat ini.'}`);
+  if(lv&&lv.mode==='bn')w.push('PAXG mengikuti harga emas tetapi bisa selisih beberapa dolar dari XAUUSD di broker Anda, dan diperdagangkan 24 jam termasuk akhir pekan.');
+  $('warn').innerHTML=w.join('<br>');
+  $('rows').innerHTML=TFS.map(tf=>{const x=R[tf.id];
+    if(!x.ok)return`<tr><td class="tf" data-l="TF"><div>${tf.id}</div></td><td class="empty" colspan="5">Data kurang: ${x.n} candle, minimal ${MIN_BARS}. Tidak diprediksi.</td></tr>`;
+    const note=!x.bt?'Prediksi awal, menunggu backtest':x.bt.skipped?`Tanpa koreksi: backtest butuh ${WARM+MIN_BT+1} candle`:x.bt.apply?`Terkoreksi backtest (awal ${x.rawInts.join(' / ')})`:'Koreksi tidak dipakai: tidak memperbaiki hasil uji';
+    return`<tr>
+    <td class="tf" data-l="TF"><div>${tf.id}<div class="small">${x.n} candle${x.derived?', dari '+x.derived:''}</div></div></td>
+    <td data-l="Bias"><div><span class="b-${x.bias}">${x.bias}</span>${x.conflict?'<div class="flag">Konflik dengan TF besar</div>':''}<div class="small">${x.struct}; ${x.pattern}</div></div></td>
+    <td data-l="Probabilitas"><div>${x.pb}% / ${x.ps}% / ${x.pd}%<div class="bar"><i class="u" style="width:${x.pb}%"></i><i class="s" style="width:${x.ps}%"></i><i class="d" style="width:${x.pd}%"></i></div><div class="small">${note}</div><div class="small">RSI ${x.rsi.toFixed(0)}, MACD hist ${x.hist>0?'+':''}${f2(x.hist)}</div></div></td>
+    <td data-l="Target"><div>${f2(x.tH)} – ${f2(x.tL)}<div class="small">ATR ${f2(x.A)}</div></div></td>
+    <td data-l="Level kunci"><div>R ${f2(x.res)}<br>S ${f2(x.sup)}</div></td>
+    <td data-l="Invalidasi"><div>${x.inv}</div></td></tr>`}).join('');
+  $('bt').innerHTML=okTF.map(tf=>{const b=R[tf.id].bt;
+    if(!b)return`<tr><td class="tf" data-l="TF"><div>${tf.id}</div></td><td class="empty" colspan="5">Menunggu…</td></tr>`;
+    if(b.skipped)return`<tr><td class="tf" data-l="TF"><div>${tf.id}</div></td><td class="empty" colspan="5">Dilewati: hanya ${b.N} prediksi uji, minimal ${MIN_BT}.</td></tr>`;
+    return`<tr><td class="tf" data-l="TF"><div>${tf.id}</div></td>
+    <td data-l="Jumlah uji"><div>${b.N} prediksi<div class="small">${b.nV} terakhir untuk validasi</div></div></td>
+    <td data-l="Akurasi"><div>${pc(b.mRaw.hit)} → ${pc(b.mCor.hit)}</div></td>
+    <td data-l="Brier"><div>${b.mRaw.brier.toFixed(3)} → ${b.mCor.brier.toFixed(3)}<div class="small">a = ${b.P.a.toFixed(2)}</div></div></td>
+    <td data-l="Base rate"><div>${b.mBase.brier.toFixed(3)}<div class="small">${b.edge?'Model lebih baik':'Model tidak lebih baik'}</div></div></td>
+    <td data-l="Keputusan"><div class="${b.apply?'ok':'no'}">${b.apply?'Koreksi dipakai':'Koreksi tidak dipakai'}</div></td></tr>`}).join('');
+  // Ringkasan
+  const W={D1:.3,H1:.25,M30:.2,M15:.15,M5:.1},ws=okTF.reduce((s,t)=>s+W[t.id],0);let net=0;okTF.forEach(t=>net+=W[t.id]/ws*(R[t.id].pb-R[t.id].pd));
+  const nb=okTF.filter(t=>R[t.id].bias==='Bullish').length,nd=okTF.filter(t=>R[t.id].bias==='Bearish').length,cf=okTF.filter(t=>R[t.id].conflict).map(t=>t.id);
+  $('conf').textContent=`Dari ${okTF.length} TF yang datanya cukup: ${nb} bullish, ${nd} bearish, ${okTF.length-nb-nd} sideways; skor bersih tertimbang ${net>0?'+':''}${net.toFixed(1)} poin. `+
+    (cf.length?`Konflik di ${cf.join(', ')} terhadap arah TF besar (${top}); prioritaskan D1/H1 untuk arah dan pakai TF kecil hanya untuk timing.`:top==='Sideways'?'TF besar tidak memberi arah yang jelas, jadi sinyal TF kecil berdiri sendiri dan lebih lemah.':`Tidak ada konflik arah; bias TF besar (${top}) sejalan dengan TF kecil.`);
+  const ref=R.H1.ok?R.H1:R[okTF[0].id],far=R.D1.ok?R.D1:ref,bull=net>=0;
+  $('main').innerHTML=bull?`<b>Utama (bullish):</b> selama harga bertahan di atas ${f2(ref.sup)}, berpeluang menguji ${f2(ref.res)} lalu ${f2(Math.max(far.res,ref.res))}.`
+    :`<b>Utama (bearish):</b> selama harga tertahan di bawah ${f2(ref.res)}, berpeluang menguji ${f2(ref.sup)} lalu ${f2(Math.min(far.sup,ref.sup))}.`;
+  $('alt').innerHTML=bull?`<b>Alternatif (bearish):</b> close di bawah ${f2(ref.sup)} membuka koreksi ke ${f2(Math.min(far.sup,ref.sup-ref.A))}.`
+    :`<b>Alternatif (bullish):</b> close di atas ${f2(ref.res)} membatalkan tekanan turun, target ${f2(Math.max(far.res,ref.res+ref.A))}.`;
+  const noEdge=okTF.filter(t=>R[t.id].bt&&!R[t.id].bt.skipped&&!R[t.id].bt.edge).map(t=>t.id),noBt=okTF.filter(t=>R[t.id].bt&&R[t.id].bt.skipped).map(t=>t.id);
+  $('risk').textContent=(lx.volRatio>1.5?`Volatilitas ${low.id} tinggi (ATR ${lx.volRatio.toFixed(1)}× rata-rata 50 candle). `:'')+
+    (finished&&noEdge.length?`Di ${noEdge.join(', ')} model tidak mengungguli base rate pada data uji; anggap probabilitasnya setara tebakan frekuensi historis. `:'')+
+    (finished&&noBt.length?`${noBt.join(', ')} belum teruji backtest karena data kurang. `:'')+
+    'Berita tidak dianalisis di halaman ini: cek kalender ekonomi (FOMC, NFP, CPI, PCE, pidato pejabat Fed) serta arah DXY dan yield US10Y sebelum entry. Di sekitar rilis high-impact, model ini tidak andal.';
+}
+
+/* ---------- Alur utama ---------- */
+let busy=false,timer=null;
+async function run(){
+  if(busy)return;busy=true;const btn=$('run');btn.disabled=true;saveTab();
+  try{
+    const mode=$('src').value,live=mode!=='manual',R={_warn:[]};
+    $('status').textContent=live?'Mengambil data…':'Membaca data…';await tick();
+    let offH=+$('tz').value,cur=+$('cur').value||0,user={},aggOn=$('agg').checked;
+    if(live){const d=await loadLive(mode);user=d.user;cur=d.cur;offH=0;aggOn=true;R._live={mode,at:d.at}}
+    else for(const tf of TFS){const s=src[tf.id];user[tf.id]=s.bars||parse(s.fileText||s.text,offH)}
+    for(let i=0;i<TFS.length;i++){const tf=TFS[i];let b=user[tf.id],derived='';
+      if(b.length){const d=[];for(let k=Math.max(1,b.length-50);k<b.length;k++)d.push((b[k].t-b[k-1].t)/60000);d.sort((x,y)=>x-y);
+        const med=d[d.length>>1];if(med&&Math.abs(med-tf.min)/tf.min>0.2)R._warn.push(`Data di ${tf.id} tampak berjarak ${Math.round(med)} menit per candle, bukan ${tf.min}. Periksa apakah datanya ditempel di TF yang benar.`)}
+      else if(aggOn){for(let j=TFS.length-1;j>i;j--){const lo=TFS[j];if(user[lo.id].length&&tf.min%lo.min===0){const a=aggregate(user[lo.id],tf.min,lo.min,offH);if(a.length>b.length){b=a;derived=lo.id}}}}
+      b=b.slice(-MAX_BARS);R[tf.id]={ok:b.length>=MIN_BARS,n:b.length,derived,bars:b};
+    }
+    const X={},SF={};
+    for(const tf of TFS){const x=R[tf.id];if(!x.ok)continue;
+      $('status').textContent=`Menghitung indikator ${tf.id}…`;await tick();
+      const F=features(x.bars);X[tf.id]=F;SF[tf.id]=finalScores(tf,F,X);
+      const L=F.n-1,price=cur||F.c[L],n=F.n;
+      const hs=F.pv.H.filter(p=>p.i>n-80&&p.v>price).map(p=>p.v),ls=F.pv.L.filter(p=>p.i>n-80&&p.v<price).map(p=>p.v);
+      Object.assign(x,{price,A:F.a[L],rsi:F.r[L],hist:F.h[L],lastT:F.t[L],
+        res:hs.length?Math.min(...hs):Math.max(...F.hi.slice(-20)),sup:ls.length?Math.max(...ls):Math.min(...F.lo.slice(-20)),
+        struct:F.st[L]===1?'HH/HL':F.st[L]===-1?'LH/LL':'Struktur campuran',pattern:candlePattern(x.bars[n-2],x.bars[n-1]),
+        volRatio:F.a[L]/avg(F.a.slice(-50)),pRaw:rawProb(SF[tf.id][L],F.pE[L],F.er[L])});
+    }
+    render(R,cur,false);
+    for(const tf of TFS){const x=R[tf.id];if(!x.ok)continue;
+      $('status').textContent=`Menjalankan backtest ${tf.id}…`;await tick();
+      x.bt=backtest(X[tf.id],SF[tf.id]);render(R,cur,false);
+    }
+    render(R,cur,true);
+    const used=TFS.filter(t=>R[t.id].ok&&R[t.id].bt&&!R[t.id].bt.skipped&&R[t.id].bt.apply).map(t=>t.id);
+    const ran=TFS.some(t=>R[t.id].ok&&R[t.id].bt&&!R[t.id].bt.skipped);
+    $('status').textContent=!TFS.some(t=>R[t.id].ok)?'Data belum cukup untuk dianalisis.':!ran?`Backtest tidak bisa dijalankan: butuh minimal ${WARM+MIN_BT+1} candle per TF. Prediksi awal ditampilkan tanpa koreksi.`:`Backtest selesai. ${used.length?'Prediksi dikoreksi di '+used.join(', ')+'.':'Tidak ada TF yang koreksinya lolos uji; prediksi awal dipertahankan.'}`;
+  }catch(e){$('status').textContent='Gagal: '+e.message+'.'}
+  finally{btn.disabled=false;busy=false}
+}
+
+/* ---------- UI ---------- */
+function saveTab(){const s=src[active],v=$('txt').value;if(v!==s.text){s.text=v;if(v.trim()){s.fileText='';s.bars=null;s.label='';simulated=simulated&&TFS.some(t=>src[t.id].bars)}}}
+function showTab(){
+  const s=src[active];$('txt').value=s.text;
+  $('txtLabel').textContent=s.label?`${active}: ${s.label}. Menempel data baru akan menggantinya.`:`Data ${active}: tempel OHLC atau pilih file. Semakin banyak candle, semakin kuat backtest (ideal 500 atau lebih).`;
+  $('tabs').innerHTML=TFS.map(t=>{const q=src[t.id],has=q.text.trim()||q.fileText||q.bars;return`<button type="button" data-tf="${t.id}" aria-pressed="${t.id===active}" class="${has?'has':''}">${t.id}</button>`}).join('');
+}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tf]');if(!b)return;saveTab();active=b.dataset.tf;showTab()});
+$('txt').addEventListener('change',()=>{saveTab();showTab()});
+$('fileBtn').addEventListener('click',()=>$('file').click());
+$('file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{const s=src[active];s.text='';s.bars=null;s.fileText=String(rd.result);s.label=`file “${f.name}” dimuat`;simulated=false;showTab();$('status').textContent=`File untuk ${active} siap. Tekan “Analisis dan backtest”.`};
+  rd.onerror=()=>{$('status').textContent='File tidak bisa dibaca. Coba tempel isinya langsung.'};rd.readAsText(f);e.target.value=''});
+$('clearBtn').addEventListener('click',()=>{src[active]={text:'',fileText:'',bars:null,label:''};simulated=TFS.some(t=>src[t.id].bars);showTab()});
+$('sampleBtn').addEventListener('click',()=>{TFS.forEach(t=>src[t.id]={text:'',fileText:'',bars:null,label:''});
+  src.M5.bars=sample();src.M5.label='60.000 candle simulasi dimuat';simulated=true;active='M5';$('cur').value='';showTab();run()});
+$('run').addEventListener('click',run);
+function schedule(){clearInterval(timer);if($('src').value!=='manual'&&$('auto').checked)timer=setInterval(run,+$('every').value*1000)}
+function applyMode(){const m=$('src').value;$('liveBox').hidden=m==='manual';$('keyRow').hidden=m!=='td';$('quota').hidden=m!=='td';$('manualBox').hidden=m!=='manual';schedule()}
+$('src').addEventListener('change',()=>{store.set('xau_src',$('src').value);applyMode();if($('src').value==='bn'||($('src').value==='td'&&$('key').value.trim()))run()});
+$('key').addEventListener('change',()=>{if(!CONFIG.apiKey)store.set('xau_td_key',$('key').value.trim())});
+$('every').addEventListener('change',schedule);$('auto').addEventListener('change',schedule);
+$('key').value=CONFIG.apiKey||store.get('xau_td_key')||'';
+$('src').value=CONFIG.source||store.get('xau_src')||($('key').value?'td':'bn');
+if(CONFIG.refreshSec)$('every').value=String(CONFIG.refreshSec);
+showTab();applyMode();
+if($('src').value==='bn'||($('src').value==='td'&&$('key').value.trim()))run();
+})();
+</script>
+</body>
+</html>
